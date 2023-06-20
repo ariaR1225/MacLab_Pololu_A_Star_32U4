@@ -21,17 +21,17 @@ uint16_t maxSpeed; // max is 400
 void selectHyper(){
   motors.flipLeftMotor(true);
   motors.flipRightMotor(true);
-  maxSpeed = 150;
+  maxSpeed = 200;
 }
 void selectStandard(){
   motors.flipLeftMotor(true);
   motors.flipRightMotor(true);
-  maxSpeed = 100;
+  maxSpeed = 200;
 }
 void selectTurtle(){
   motors.flipLeftMotor(true);
   motors.flipRightMotor(true);
-  maxSpeed = 50;
+  maxSpeed = 200;
 }
 
 // Display Readings
@@ -39,17 +39,25 @@ void showReadings(){
   while(1){
     display.clear();
     lineSensors.read(lineSensorVal);
+    uint16_t pos;
+    pos = lineSensors.readLineBlack(lineSensorVal);
     display.gotoXY(0, 0);
-    display.print(lineSensorVal[0]);
-    delay(100);
+    display.print(pos);
+    delay(10);
   }
 }
 
 void setup(){
-  selectTurtle();
+  selectStandard();
+  lineSensors.emittersOn();
   showReadings();
 }
 
 void loop(){
-  motors.setSpeeds(maxSpeed, maxSpeed);
+  uint16_t pos;
+  pos = lineSensors.readLineBlack(lineSensorVal);
+  if (pos > 2000){
+    ledRed(1);
+    motors.setSpeeds(maxSpeed, maxSpeed); 
+  }
 }
