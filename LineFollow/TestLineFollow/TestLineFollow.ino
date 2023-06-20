@@ -9,9 +9,6 @@ OLED display;
 
 LineSensors lineSensors;
 Motors motors;
-ButtonA buttonA;
-ButtonB buttonB;
-ButtonC buttonC;
 
 unsigned int lineSensorVal[NUM_SENSOR];
 

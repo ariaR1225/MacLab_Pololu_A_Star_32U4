@@ -1,79 +1,106 @@
-// Line Following with PID Control
+# include <Pololu3piPlus32U4.h>
+# include <PololuMenu.h>
 
-// Pin Definitions
-#define LEFT_MOST_SENSOR A0
-#define LEFT_SENSOR A1
-#define CENTER_SENSOR A2
-#define RIGHT_SENSOR A3
-#define RIGHT_MOST_SENSOR A4
-#define LEFT_MOTOR_PIN 5
-#define RIGHT_MOTOR_PIN 6
+# define NUM_SENSOR 5
+# define MID_LINE 2000
 
-// PID Constants
-float kp = 1.2;   // Proportional constant
-float ki = 1.0;   // Integral constant
-float kd = 0.8;   // Derivative constant
+using namespace Pololu3piPlus32U4;
 
-// Setpoint (desired position on the line)
-int setpoint = 512;
+OLED display; 
 
-// Variables
-int leftMostSensorValue, leftSensorValue, centerSensorValue, rightSensorValue, rightMostSensorValue;
-int leftMotorSpeed, rightMotorSpeed;
-int lastError = 0;
-float integral = 0;
+LineSensors lineSensors;
+Motors motors;
 
-void setup() {
-  // Initialize Serial communication
-  Serial.begin(9600);
+unsigned int lineSensorVal[NUM_SENSOR];
 
-  // Set pin modes
-  pinMode(LEFT_MOTOR_PIN, OUTPUT);
-  pinMode(RIGHT_MOTOR_PIN, OUTPUT);
+uint16_t lineSpeed = 50; // max is 400
+uint16_t calibSpeed = 100; // max is 400
+
+uint16_t kp = .5; // max is 1
+uint16_t kd = 0; // max is 1
+uint16_t err;
+uint16_t prev = 0;
+
+// Calibration
+void calibSensor(){
+  delay(500);
+  display.clear();
+  display.print(F("Calib"));
+  for(uint16_t i = 0; i < 100; i++){
+    if (i > 25 && i <= 75){
+      motors.setSpeeds(calibSpeed, -calibSpeed);
+    }
+    else{
+      motors.setSpeeds(-calibSpeed, calibSpeed);
+    }
+    lineSensors.calibrate();
+  }
+  motors.setSpeeds(0,0);
 }
 
-void loop() {
-  // Read sensor values
-  leftMostSensorValue = analogRead(LEFT_MOST_SENSOR);
-  leftSensorValue = analogRead(LEFT_SENSOR);
-  centerSensorValue = analogRead(CENTER_SENSOR);
-  rightSensorValue = analogRead(RIGHT_SENSOR);
-  rightMostSensorValue = analogRead(RIGHT_MOST_SENSOR);
-
-  // Calculate error
-  int error = centerSensorValue - setpoint;
-
-  // PID control
-  integral += error;
-  float derivative = error - lastError;
-  float output = kp * error + ki * integral + kd * derivative;
-
-  // Map the output to motor speeds
-  leftMotorSpeed = constrain(255 - output, 0, 255);
-  rightMotorSpeed = constrain(255 + output, 0, 255);
-
-  // Apply motor speeds
-  analogWrite(LEFT_MOTOR_PIN, leftMotorSpeed);
-  analogWrite(RIGHT_MOTOR_PIN, rightMotorSpeed);
-
-  // Print sensor readings to Serial Monitor
-  Serial.print("Sensor Readings: ");
-  Serial.print(leftMostSensorValue);
-  Serial.print(" | ");
-  Serial.print(leftSensorValue);
-  Serial.print(" | ");
-  Serial.print(centerSensorValue);
-  Serial.print(" | ");
-  Serial.print(rightSensorValue);
-  Serial.print(" | ");
-  Serial.println(rightMostSensorValue);
-
-  // Print values to Serial Monitor
-  Serial.print("Error: ");
-  Serial.print(error);
-  Serial.print(" | Output: ");
-  Serial.println(output);
-
-  // Update last error
-  lastError = error;
+// Display Readings
+void showReading(){
+  while(1){
+    display.clear();
+    //lineSensors.read(lineSensorVal);
+    uint16_t pos = lineSensors.readLineBlack(lineSensorVal);
+    display.gotoXY(0, 0);
+    display.print(pos);
+    delay(100);
+  }
 }
+
+// Navigation
+void turnRight(){
+  motors.setSpeeds(0,lineSpeed);
+  display.print(F("right"));
+}
+void turnLeft(){
+  motors.setSpeeds(lineSpeed,0);
+  display.print(F("left"));
+}
+void goForward(){
+  motors.setSpeeds(lineSpeed,lineSpeed);
+  display.print(F("forward"));
+}
+void goBackward(){
+  motors.setSpeeds(lineSpeed,lineSpeed);
+  display.print(F("backward"));
+}
+
+
+void setup(){
+  calibSensor();
+  //showReading();
+}
+
+void loop(){
+  uint16_t pos = lineSensors.readLineBlack(lineSensorVal);
+  uint16_t npos;
+  uint16_t dpos; 
+  // turn left 
+  display.clear();
+  err = pos - 2000;
+  dpos = err * kp + (err - prev) * kd;
+  prev = err;
+  npos = pos + dpos;
+  pos = npos;
+  
+  if (npos >= 0 && npos < 1000){
+    turnLeft();
+  }
+  // go straight
+  else if (npos >= 1000 && npos < 3000){
+    goForward();
+  }
+  // turn right
+  else if (npos > 3000 && npos <= 4000){
+    turnRight();
+  }
+  else{
+    motors.setSpeeds(0,0);
+    display.print(F("error"));
+  }
+  delay(50);
+}
+
