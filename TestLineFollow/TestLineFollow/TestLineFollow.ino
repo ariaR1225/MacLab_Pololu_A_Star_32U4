@@ -1,0 +1,85 @@
+# include <Pololu3piPlus32U4.h>
+# include <PololuMenu.h>
+
+# define NUM_SENSOR 5
+
+using namespace Pololu3piPlus32U4;
+
+OLED display; 
+
+LineSensors lineSensors;
+Motors motors;
+ButtonA buttonA;
+ButtonB buttonB;
+ButtonC buttonC;
+
+unsigned int lineSensorVal[NUM_SENSOR];
+
+unit16_t maxSpeed; // max is 400
+
+// Select Mode
+void selectHyper(){
+  motors.flipLeftMotor(True);
+  motors.flipRightMotor(True);
+  maxSpeed = 150;
+}
+void selectStandard(){
+  motors.flipLeftMotor(True);
+  motors.flipRightMotor(True);
+  maxSpeed = 100;
+}
+void selectTurtle(){
+  motors.flipLeftMotor(True);
+  motors.flipRightMotor(True);
+  maxSpeed = 50;
+}
+
+// Display Readings
+void loadCustomCharacters()
+{
+  static const char levels[] PROGMEM = {
+    0, 0, 0, 0, 0, 0, 0, 63, 63, 63, 63, 63, 63, 63
+  };
+  display.loadCustomCharacter(levels + 0, 0);  // 1 bar
+  display.loadCustomCharacter(levels + 1, 1);  // 2 bars
+  display.loadCustomCharacter(levels + 2, 2);  // 3 bars
+  display.loadCustomCharacter(levels + 3, 3);  // 4 bars
+  display.loadCustomCharacter(levels + 4, 4);  // 5 bars
+  display.loadCustomCharacter(levels + 5, 5);  // 6 bars
+  display.loadCustomCharacter(levels + 6, 6);  // 7 bars
+}
+void printBar(uint8_t height)
+{
+  if (height > 8) { height = 8; }
+  const char barChars[] = {' ', 0, 1, 2, 3, 4, 5, 6, (char)255};
+  display.print(barChars[height]);
+}
+void showReadings()
+{
+  display.clear();
+
+  while(!buttonB.getSingleDebouncedPress())
+  {
+    uint16_t position = lineSensors.readLineBlack(lineSensorValues);
+
+    display.gotoXY(0, 0);
+    display.print(position);
+    display.print("    ");
+    display.gotoXY(0, 1);
+    for (uint8_t i = 0; i < NUM_SENSORS; i++)
+    {
+      uint8_t barHeight = map(lineSensorValues[i], 0, 1000, 0, 8);
+      printBar(barHeight);
+    }
+
+    delay(50);
+  }
+}
+
+void setup(){
+  loadCustomCharacters();
+  selectTurtle();
+  
+
+}
+
