@@ -20,16 +20,16 @@ uint16_t calibSpeed; // max is 400
 
 // Select Mode
 void selectHyper(){
-  lineSpeed = 200;
+  lineSpeed = 300;
   calibSpeed = lineSpeed/2;
 
 }
 void selectStandard(){
-  lineSpeed = 150;
+  lineSpeed = 250;
   calibSpeed = lineSpeed/2;
 }
 void selectTurtle(){
-  lineSpeed = 100;
+  lineSpeed = 80;
   calibSpeed = lineSpeed/2;
 }
 
@@ -61,18 +61,45 @@ void showReading(){
     delay(100);
   }
 }
+// Navigation
+void turnRight(){
+  motors.setSpeeds(0,lineSpeed);
+  display.print(F("right"));
+}
+void turnLeft(){
+  motors.setSpeeds(lineSpeed,0);
+  display.print(F("left"));
+}
+void goStraight(){
+  motors.setSpeeds(lineSpeed,lineSpeed);
+  display.print(F("straight"));
+}
 
 void setup(){
   selectTurtle();
   calibSensor();
-  showReading();
+  //showReading();
 }
 
 void loop(){
   uint16_t pos = lineSensors.readLineBlack(lineSensorVal);
-  if (pos > 1000){
-    ledYellow(1);
-    motors.setSpeeds(lineSpeed, lineSpeed);
+  // turn left 
+  display.clear();
+  if (pos >= 0 && pos < 1000){
+    turnLeft();
   }
+  // go straight
+  else if (pos >= 1000 && pos < 3000){
+    goStraight();
+  }
+  // turn right
+  else if (pos > 3000 && pos <= 4000){
+    turnRight();
+  }
+  else{
+    motors.setSpeeds(0,0);
+    display.print(F("error"));
+  }
+  delay(50);
 }
 
