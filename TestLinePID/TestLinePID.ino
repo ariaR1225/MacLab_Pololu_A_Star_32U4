@@ -13,9 +13,9 @@ Motors motors;
 
 unsigned int lineSensorVal[NUM_SENSOR];
 
-uint16_t highSpeed = 80; // max is 400
+uint16_t highSpeed = 60; // max is 400
 uint16_t lowSpeed = 30; // max is 400
-uint16_t Speed = 55;
+uint16_t Speed = 40;
 uint16_t calibSpeed = 100; // max is 400
 
 float kp = 0.5; // max is 1
@@ -78,24 +78,33 @@ void setup(){
 void loop(){
   display.clear();
 
-  uint16_t pos = lineSensors.readLineBlack(lineSensorVal);
+  int16_t pos = lineSensors.readLineBlack(lineSensorVal);
 
   // PD
-  float err = pos - MID_LINE;
-  float err_d = err - prev;
-  uint16_t dSpeed = kp*err - kd*err_d ;
+  int16_t err = pos - MID_LINE;
+  int16_t err_d = err - prev;
+  int16_t dSpeed = kp*err - kd*err_d ;
   prev = err;
-  // anti-windup
-  if (dSpeed < lowSpeed){
-    dSpeed = lowSpeed;
+
+  int16_t lSpeed = Speed + dSpeed;
+  int16_t rSpeed = Speed - dSpeed; 
+
+    // anti-windup
+  if (lSpeed < lowSpeed){
+    lSpeed = lowSpeed;
   }
-  if (dSpeed > highSpeed){
-    dSpeed = highSpeed;
+  if (lSpeed > highSpeed){
+    lSpeed = highSpeed;
   }
-  uint16_t lSpeed = Speed + dSpeed;
-  uint16_t rSpeed = Speed - dSpeed; 
+  if (rSpeed < lowSpeed){
+    rSpeed = lowSpeed;
+  }
+  if (rSpeed > highSpeed){
+    rSpeed = highSpeed;
+  }
+
   motors.setSpeeds(lSpeed, rSpeed);
-  display.print(lSpeed); 
+  display.print(rSpeed); 
   Serial.println(err);
   delay(100);
 }
