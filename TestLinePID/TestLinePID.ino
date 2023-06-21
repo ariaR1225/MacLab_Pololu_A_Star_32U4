@@ -13,21 +13,23 @@ Motors motors;
 
 unsigned int lineSensorVal[NUM_SENSOR];
 
-uint16_t lineSpeed = 50; // max is 400
+uint16_t highSpeed = 80; // max is 400
+uint16_t lowSpeed = 30; // max is 400
+uint16_t Speed = 55;
 uint16_t calibSpeed = 100; // max is 400
 
-uint16_t kp = .5; // max is 1
-uint16_t kd = 0; // max is 1
-uint16_t err;
-uint16_t prev = 0;
+float kp = 0.5; // max is 1
+float kd = 0.; // max is 1
+float prev = 0;
 
 // Calibration
 void calibSensor(){
   delay(500);
   display.clear();
   display.print(F("Calib"));
-  for(uint16_t i = 0; i < 100; i++){
-    if (i > 25 && i <= 75){
+  uint8_t calib_count = 60;
+  for(uint16_t i = 0; i < calib_count; i++){
+    if (i > calib_count/4 && i <= calib_count/4*3){
       motors.setSpeeds(calibSpeed, -calibSpeed);
     }
     else{
@@ -52,22 +54,21 @@ void showReading(){
 
 // Navigation
 void turnRight(){
-  motors.setSpeeds(0,lineSpeed);
-  display.print(F("right"));
+  motors.setSpeeds(lowSpeed,highSpeed);
+  //display.print(F("right"));
 }
 void turnLeft(){
-  motors.setSpeeds(lineSpeed,0);
-  display.print(F("left"));
+  motors.setSpeeds(highSpeed,lowSpeed);
+  //display.print(F("left"));
 }
 void goForward(){
-  motors.setSpeeds(lineSpeed,lineSpeed);
-  display.print(F("forward"));
+  motors.setSpeeds(highSpeed,highSpeed);
+  //display.print(F("forward"));
 }
 void goBackward(){
-  motors.setSpeeds(lineSpeed,lineSpeed);
-  display.print(F("backward"));
+  motors.setSpeeds(-lowSpeed,-lowSpeed);
+  //display.print(F("backward"));
 }
-
 
 void setup(){
   calibSensor();
@@ -75,32 +76,27 @@ void setup(){
 }
 
 void loop(){
-  uint16_t pos = lineSensors.readLineBlack(lineSensorVal);
-  uint16_t npos;
-  uint16_t dpos; 
-  // turn left 
   display.clear();
-  err = pos - 2000;
-  dpos = err * kp + (err - prev) * kd;
+
+  uint16_t pos = lineSensors.readLineBlack(lineSensorVal);
+
+  // PD
+  float err = pos - MID_LINE;
+  float err_d = err - prev;
+  uint16_t dSpeed = kp*err - kd*err_d ;
   prev = err;
-  npos = pos + dpos;
-  pos = npos;
-  
-  if (npos >= 0 && npos < 1000){
-    turnLeft();
+  // anti-windup
+  if (dSpeed < lowSpeed){
+    dSpeed = lowSpeed;
   }
-  // go straight
-  else if (npos >= 1000 && npos < 3000){
-    goForward();
+  if (dSpeed > highSpeed){
+    dSpeed = highSpeed;
   }
-  // turn right
-  else if (npos > 3000 && npos <= 4000){
-    turnRight();
-  }
-  else{
-    motors.setSpeeds(0,0);
-    display.print(F("error"));
-  }
-  delay(50);
+  uint16_t lSpeed = Speed + dSpeed;
+  uint16_t rSpeed = Speed - dSpeed; 
+  motors.setSpeeds(lSpeed, rSpeed);
+  display.print(lSpeed); 
+  Serial.println(err);
+  delay(100);
 }
 
