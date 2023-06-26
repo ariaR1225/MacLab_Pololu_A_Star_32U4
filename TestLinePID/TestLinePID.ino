@@ -24,7 +24,7 @@ float prev = 0;
 
 // Calibration
 void calibSensor(){
-  delay(500);
+  delay(200);
   display.clear();
   display.print(F("Calib"));
   uint8_t calib_count = 60;
