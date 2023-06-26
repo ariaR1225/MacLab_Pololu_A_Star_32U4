@@ -20,7 +20,6 @@ uint16_t K = .5;
 uint16_t linePos;
 
 
-
 // Select Mode
 void selectHyper(){
   lineSpeed = 300;
@@ -35,7 +34,6 @@ void selectTurtle(){
   lineSpeed = 100;
   calibSpeed = 60;
 }
-
 
 
 // Calibration
@@ -62,11 +60,11 @@ void showReading(){
     for(uint16_t j = 0;j < 5; j++){
         display.clear();
         display.gotoXY(0, 0);
+        display.print(j+1);
         display.print(sensorValues[j]);
         delay(1000);
     }
 }
-
 
 
 
@@ -93,44 +91,6 @@ void loop(){
 }
 
 
-
-/*
-// Navigation
-void turnLeft(){
-  motors.setSpeeds(lineSpeed,lineSpeed * .85);
-  //display.print(F("TL"));
-  display.print(avepos);
-  delay(100);
-  justLeft = true;
-}
-void turnRight(){
-  motors.setSpeeds(lineSpeed * .85,lineSpeed);
-  //display.print(F("TR"));
-  display.print(avepos);
-  delay(100);
-  justRight = true;
-}
-void goStraight(){
-  
-  if (justRight){
-    turnLeft();
-    turnLeft();
-    justLeft = false;
-    justRight = false;
-  }
-  if (justLeft){
-    turnRight();
-    turnRight();
-    justRight = false;
-    justLeft = false;
-  }
-  
-  motors.setSpeeds(lineSpeed,lineSpeed);
-  //display.print(F("S"));
-  display.print(avepos);
-  delay(1000);
-}
-*/
 
 
 
