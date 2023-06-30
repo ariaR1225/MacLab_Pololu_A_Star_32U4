@@ -13,13 +13,13 @@ Motors motors;
 
 unsigned int lineSensorVal[NUM_SENSOR];
 
-uint16_t highSpeed = 60; // max is 400
-uint16_t lowSpeed = 30; // max is 400
-uint16_t Speed = 40;
+uint16_t highSpeed = 25; // max is 400
+uint16_t lowSpeed = 15; // max is 400
+uint16_t Speed = 20;
 uint16_t calibSpeed = 100; // max is 400
 
-float kp = 0.5; // max is 1
-float kd = 0.; // max is 1
+float kp = 1/4; // max is 1
+float kd = .0; // max is 1
 float prev = 0;
 
 // Calibration
@@ -52,24 +52,6 @@ void showReading(){
   }
 }
 
-// Navigation
-void turnRight(){
-  motors.setSpeeds(lowSpeed,highSpeed);
-  //display.print(F("right"));
-}
-void turnLeft(){
-  motors.setSpeeds(highSpeed,lowSpeed);
-  //display.print(F("left"));
-}
-void goForward(){
-  motors.setSpeeds(highSpeed,highSpeed);
-  //display.print(F("forward"));
-}
-void goBackward(){
-  motors.setSpeeds(-lowSpeed,-lowSpeed);
-  //display.print(F("backward"));
-}
-
 void setup(){
   calibSensor();
   //showReading();
@@ -77,10 +59,12 @@ void setup(){
 
 void loop(){
   display.clear();
-
   int16_t pos = lineSensors.readLineBlack(lineSensorVal);
 
   // PD
+  // need to scale pos err and speed?
+  // pos err -2000 ~ 2000
+  // speed range -5 ~ 5 (0 ~ 400)
   int16_t err = pos - MID_LINE;
   int16_t err_d = err - prev;
   int16_t dSpeed = kp*err - kd*err_d ;
@@ -103,9 +87,8 @@ void loop(){
     rSpeed = highSpeed;
   }
 
-  motors.setSpeeds(lSpeed, rSpeed);
-  display.print(rSpeed); 
-  Serial.println(err);
+  //motors.setSpeeds(lSpeed, rSpeed);
+  display.print(kp);
   delay(100);
 }
 
