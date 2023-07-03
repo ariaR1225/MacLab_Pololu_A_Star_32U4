@@ -12,8 +12,8 @@ Motors motors;
 #define NUM_SENSORS 5
 unsigned int lineSensorValues[NUM_SENSORS];
 
-uint16_t maxSpeed = 40;
-int16_t minSpeed = 30;
+uint16_t maxSpeed = 35;
+int16_t minSpeed = 25;
 
 uint16_t baseSpeed = minSpeed;
 
@@ -69,7 +69,7 @@ void loop()
   leftSpeed = constrain(leftSpeed, minSpeed, (int16_t)maxSpeed);
   rightSpeed = constrain(rightSpeed, minSpeed, (int16_t)maxSpeed);
   display.print(err_i);
-  delay(10);
+
 
   motors.setSpeeds(leftSpeed, rightSpeed);
 }

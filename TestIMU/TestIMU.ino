@@ -29,8 +29,8 @@ void setup()
 }
 void loop() {
   imu.read();
-  snprintf_P(buffer, sizeof(buffer), PSTR("X: %6d Y: %6d Z: %6d"), 
-    imu.g.x, imu.g.y, imu.g.z
+  snprintf_P(buffer, sizeof(buffer), PSTR("Z: %6d"), 
+    imu.g.z
   );
   Serial.println(buffer);
 
