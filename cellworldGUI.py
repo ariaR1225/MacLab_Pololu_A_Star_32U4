@@ -91,7 +91,7 @@ ft_wait_entry = ttk.Entry(root,textvariable=tk.IntVar,width=5)
 ft_wait_entry.grid(row=4,column=7,padx=10,pady=5)
 
 
-# Start Experiment
+# Start experiment
 exp_start_button = ttk.Button(root,text="Start Experiment",command=start_exp)
 exp_start_button.grid(row=8,column=2,padx=10,pady=10)
 prefix_label = ttk.Label(root,text="Prefix")
@@ -104,14 +104,23 @@ suffix_combobox = ttk.Combobox(root,width=3,values=["RT"])
 suffix_combobox.grid(row=7,column=3,padx=10,pady=5)
 suffix_combobox.current(0)
 
+
+# Finish experiment
+
+
+# Resume experiment
+
 # Save calibration
 # save_button = ttk.Button(root,text="Save Calibration",command=save_calibration)
 # save_button.grid(row=8,column=2,padx=10,pady=10)
 
 # Help
 
+# Connect
+
 # Reconnect
 
+# Refresh Connection
 
 # Upload experiment
 
@@ -121,7 +130,11 @@ suffix_combobox.current(0)
 
 # Enable feeder
 
-# feeder reached
+# Feeder reached
+
+# Start episode
+
+# Finish episode
 
 root.mainloop()
 
