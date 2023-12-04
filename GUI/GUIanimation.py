@@ -12,6 +12,19 @@ class ImageWindow(QWidget):
         self.initUI()
 
     def initUI(self):
+        self.d0x = 450
+        self.d0y = 240
+        self.d1x = 80
+        self.d1y = 240
+        self.d2x = 90
+        self.d2y = 210
+        self.d3x = 440
+        self.d3y = 200
+        self.f1x = 35
+        self.f1y = 240
+        self.f2x = 500
+        self.f2y = 230
+
         # Set window properties
         self.setGeometry(300, 300, 350, 300)
         self.setWindowTitle('Cell World GUI')
@@ -25,6 +38,10 @@ class ImageWindow(QWidget):
         self.imageLabel = QLabel(self)
         self.defaultPixmap = QPixmap(file_path + 'habitat.png').scaled(600, 400, Qt.KeepAspectRatio)
         self.alternatePixmap = QPixmap(file_path + 'test1.png').scaled(50, 50, Qt.KeepAspectRatio)
+        self.openPixmap = QPixmap(file_path + 'open.png').scaled(80, 80, Qt.KeepAspectRatio)
+        self.closePixmap = QPixmap(file_path + 'close.png').scaled(50, 50, Qt.KeepAspectRatio)
+        self.testPixmap = QPixmap(file_path + 'test.png').scaled(50, 50, Qt.KeepAspectRatio)
+
         self.imageLabel.setPixmap(self.defaultPixmap)
         layout.addWidget(self.imageLabel)
 
@@ -38,9 +55,9 @@ class ImageWindow(QWidget):
         OpenDoorsLayout.addWidget(self.door1)
         OpenDoorsLayout.addWidget(self.door2)
         OpenDoorsLayout.addWidget(self.door3)
-        button = QPushButton('Open/Close Door', self)
-        button.clicked.connect(self.print_checked)
-        OpenDoorsLayout.addWidget(button)
+        OpenDoorbutton = QPushButton('Open/Close Door', self)
+        OpenDoorbutton.clicked.connect(self.OpenDoor)
+        OpenDoorsLayout.addWidget(OpenDoorbutton)
         layout.addLayout(OpenDoorsLayout)
 
         # Test Door
@@ -143,26 +160,41 @@ class ImageWindow(QWidget):
         # Set the layout
         self.setLayout(layout)
         self.resize(650, 550)
+    
+    def overlay(self, xpos, ypos, overlayImage):
+        painter = QPainter(self.defaultPixmap)
+        painter.drawPixmap(xpos, ypos, overlayImage)
+        painter.end()
+        self.imageLabel.setPixmap(self.defaultPixmap)
+        self.update() 
 
-    def print_checked(self):
+
+    def OpenDoor(self):
         checked_options = []
         if self.door0.isChecked():
             checked_options.append(self.door0.text())
+            self.overlay(self.d0x,self.d0y,self.openPixmap)
+        else:
+            self.overlay(self.d0x,self.d0y,self.closePixmap)
+
         if self.door1.isChecked():
             checked_options.append(self.door1.text())
+            self.overlay(self.d1x,self.d1y,self.openPixmap)
+        else:
+            self.overlay(self.d1x,self.d1y,self.closePixmap)
+
         if self.door2.isChecked():
             checked_options.append(self.door2.text())
-            composite_image = QPixmap(self.defaultPixmap.size())
-            composite_image.fill(Qt.transparent)
-            painter = QPainter(composite_image)
-            painter.drawPixmap(0, 0, self.defaultPixmap)
-            painter.drawPixmap(100, 50, self.alternatePixmap)
-            painter.end()
-            self.imageLabel.setPixmap(composite_image)
+            self.overlay(self.d2x,self.d2y,self.openPixmap)
         else:
-            self.imageLabel.setPixmap(self.defaultPixmap)
+            self.overlay(self.d2x,self.d2y,self.closePixmap)
+
         if self.door3.isChecked():
             checked_options.append(self.door3.text())
+            self.overlay(self.d3x,self.d3y,self.openPixmap)
+        else:
+            self.overlay(self.d3x,self.d3y,self.closePixmap)
+
         print("Checked Options:", ', '.join(checked_options) if checked_options else "None")
 
     def TestDoor(self):
