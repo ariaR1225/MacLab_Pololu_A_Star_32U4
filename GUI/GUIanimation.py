@@ -1,6 +1,10 @@
 import sys
-from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QPushButton, QLineEdit, QVBoxLayout, QComboBox
-from PyQt5.QtGui import QPixmap
+from PyQt5.QtWidgets import (QApplication, QWidget, QLabel, QPushButton, QLineEdit, QVBoxLayout, QHBoxLayout,
+                             QComboBox, QCheckBox, QSizePolicy)
+from PyQt5.QtGui import QPixmap, QPainter
+from PyQt5.QtCore import Qt
+
+file_path = r"/Users/ariar/Documents/GitHub/MacLab_Pololu_A_Star_32U4/GUI/"
 
 class ImageWindow(QWidget):
     def __init__(self):
@@ -10,39 +14,176 @@ class ImageWindow(QWidget):
     def initUI(self):
         # Set window properties
         self.setGeometry(300, 300, 350, 300)
-        self.setWindowTitle('PyQt5 Image with Widgets')
+        self.setWindowTitle('Cell World GUI')
 
-        # Create a vertical layout
+        # Create a vertical layout with reduced spacing and margins
         layout = QVBoxLayout()
+        layout.setSpacing(5)
+        layout.setContentsMargins(5, 5, 5, 5)
 
         # Create a label to display the image
-        label = QLabel(self)
-        pixmap = QPixmap(r'/Users/ariar/Desktop/Screenshot 2023-12-03 at 18.52.00.png')  # Replace with your image path
-        label.setPixmap(pixmap)
-        layout.addWidget(label)
+        self.imageLabel = QLabel(self)
+        self.defaultPixmap = QPixmap(file_path + 'habitat.png').scaled(600, 400, Qt.KeepAspectRatio)
+        self.alternatePixmap = QPixmap(file_path + 'test1.png').scaled(50, 50, Qt.KeepAspectRatio)
+        self.imageLabel.setPixmap(self.defaultPixmap)
+        layout.addWidget(self.imageLabel)
 
-        # Create a QLineEdit widget
-        self.lineEdit = QLineEdit(self)
-        layout.addWidget(self.lineEdit)
+        # Open Door
+        OpenDoorsLayout = QHBoxLayout()
+        self.door0 = QCheckBox("door 0", self)
+        self.door1 = QCheckBox("door 1", self)
+        self.door2 = QCheckBox("door 2", self)
+        self.door3 = QCheckBox("door 3", self)
+        OpenDoorsLayout.addWidget(self.door0)
+        OpenDoorsLayout.addWidget(self.door1)
+        OpenDoorsLayout.addWidget(self.door2)
+        OpenDoorsLayout.addWidget(self.door3)
+        button = QPushButton('Open/Close Door', self)
+        button.clicked.connect(self.print_checked)
+        OpenDoorsLayout.addWidget(button)
+        layout.addLayout(OpenDoorsLayout)
 
-        # Create a QComboBox widget
-        self.comboBox = QComboBox(self)
-        self.comboBox.addItems(["Option 1", "Option 2", "Option 3"])  # Add your options here
-        layout.addWidget(self.comboBox)
+        # Test Door
+        TestDoorLayout = QHBoxLayout()
 
-        # Create a QPushButton and connect it to a function
-        button = QPushButton('Print Value', self)
-        button.clicked.connect(self.on_click)
-        layout.addWidget(button)
+        self.TestDoorCombobox = QComboBox(self)
+        self.TestDoorCombobox.addItems(["door 0", "door 1", "door 2", "door 3"])
+        TestDoorLayout.addWidget(self.TestDoorCombobox)
+
+        DoorTimeTextLabel = QLabel("Time (s)", self)
+        TestDoorLayout.addWidget(DoorTimeTextLabel)
+
+        self.DoorTimeTextEntry = QLineEdit(self)
+        TestDoorLayout.addWidget(self.DoorTimeTextEntry)
+
+        DoorRepTextLabel = QLabel("Rep", self)
+        TestDoorLayout.addWidget(DoorRepTextLabel)
+
+        self.DoorRepTextEntry = QLineEdit(self)
+        TestDoorLayout.addWidget(self.DoorRepTextEntry)
+
+        TestDoorButton = QPushButton('Test Door', self)
+        TestDoorButton.clicked.connect(self.TestDoor)
+        TestDoorLayout.addWidget(TestDoorButton)
+
+        layout.addLayout(TestDoorLayout)
+
+        # Test Feeder
+        TestFeederLayout = QHBoxLayout()
+        self.TestFeederCombobox = QComboBox(self)
+        self.TestFeederCombobox.addItems(["feeder 1", "feeder 2"])
+        TestFeederLayout.addWidget(self.TestFeederCombobox)
+
+        FeederTimeTextLabel = QLabel("Time (s)", self)
+        TestFeederLayout.addWidget(FeederTimeTextLabel)
+
+        self.FeederTimeEntry = QLineEdit(self)
+        TestFeederLayout.addWidget(self.FeederTimeEntry)
+
+        FeederRepTextLabel = QLabel("Rep", self)
+        TestFeederLayout.addWidget(FeederRepTextLabel)
+
+        self.FeederRepEntry = QLineEdit(self)
+        TestFeederLayout.addWidget(self.FeederRepEntry)
+
+        FeederWaitTextLabel = QLabel("Wait (s)", self)
+        TestFeederLayout.addWidget(FeederWaitTextLabel)
+
+        self.FeederWaitEntry = QLineEdit(self)
+        TestFeederLayout.addWidget(self.FeederWaitEntry)
+
+        TestFeederButton = QPushButton('Test Feeder', self)
+        TestFeederButton.clicked.connect(self.TestFeeder)
+        TestFeederLayout.addWidget(TestFeederButton)
+
+        layout.addLayout(TestFeederLayout)
+
+        # Experiment Name
+        ExpLayout = QHBoxLayout()
+
+        ExpPreTextLabel = QLabel("Prefix (s)", self)
+        ExpLayout.addWidget(ExpPreTextLabel)
+
+        self.ExpPreEntry = QLineEdit(self)
+        self.ExpPreEntry.setText("PEEK")
+        ExpLayout.addWidget(self.ExpPreEntry)
+
+        ExpSubLabel = QLabel("Subject Name", self)
+        ExpLayout.addWidget(ExpSubLabel)
+
+        self.ExpSubEntry = QLineEdit(self)
+        ExpLayout.addWidget(self.ExpSubEntry)
+
+        ExpSufTextLabel = QLabel("Suffix", self)
+        ExpLayout.addWidget(ExpSufTextLabel)
+
+        self.ExpCombobox = QComboBox(self)
+        self.ExpCombobox.addItems(["RT", "CT", "HT"])
+        ExpLayout.addWidget(self.ExpCombobox)
+
+        layout.addLayout(ExpLayout)
+
+        # Experiment Status
+        ExpStaLayout = QHBoxLayout()
+
+        StartButton = QPushButton('Start Experiment', self)
+        StartButton.clicked.connect(self.StartExp)
+        ExpStaLayout.addWidget(StartButton)
+
+        FinishButton = QPushButton('Finish Experiment', self)
+        FinishButton.clicked.connect(self.FinishExp)
+        ExpStaLayout.addWidget(FinishButton)
+
+        UploadButton = QPushButton('Upload Experiment', self)
+        UploadButton.clicked.connect(self.UploadExp)
+        ExpStaLayout.addWidget(UploadButton)
+
+        layout.addLayout(ExpStaLayout)
 
         # Set the layout
         self.setLayout(layout)
-        self.resize(pixmap.width(), pixmap.height() + 150)  # Adjust height for additional widgets
+        self.resize(650, 550)
 
-    def on_click(self):
-        # Print the value from the line edit and combo box widgets
-        print("Text:", self.lineEdit.text())
-        print("Selected Option:", self.comboBox.currentText())
+    def print_checked(self):
+        checked_options = []
+        if self.door0.isChecked():
+            checked_options.append(self.door0.text())
+        if self.door1.isChecked():
+            checked_options.append(self.door1.text())
+        if self.door2.isChecked():
+            checked_options.append(self.door2.text())
+            composite_image = QPixmap(self.defaultPixmap.size())
+            composite_image.fill(Qt.transparent)
+            painter = QPainter(composite_image)
+            painter.drawPixmap(0, 0, self.defaultPixmap)
+            painter.drawPixmap(100, 50, self.alternatePixmap)
+            painter.end()
+            self.imageLabel.setPixmap(composite_image)
+        else:
+            self.imageLabel.setPixmap(self.defaultPixmap)
+        if self.door3.isChecked():
+            checked_options.append(self.door3.text())
+        print("Checked Options:", ', '.join(checked_options) if checked_options else "None")
+
+    def TestDoor(self):
+        print("Door Num:", self.TestDoorCombobox.currentText())
+        print("Time:", self.DoorTimeTextEntry.text())
+        print("Rep:", self.DoorRepTextEntry.text())
+    
+    def TestFeeder(self):
+        print("Feeder Num:", self.TestFeederCombobox.currentText())
+        print("Time:", self.FeederTimeEntry.text())
+        print("Rep:", self.FeederRepEntry.text())
+        print("Rep:", self.FeederWaitEntry.text())
+    
+    def StartExp(self):
+        self.subject_name = f"{self.ExpPreEntry.text()}_{self.ExpSubEntry.text()}_{self.ExpCombobox.currentText()}"
+        
+    def FinishExp(self):
+        print(self.subject_name)
+
+    def UploadExp(self):
+        pass
 
 app = QApplication([])
 ex = ImageWindow()
