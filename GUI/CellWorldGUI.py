@@ -5,6 +5,7 @@ from PyQt5.QtGui import QPixmap, QPainter
 from PyQt5.QtCore import Qt
 
 file_path = r"/Users/ariar/Documents/GitHub/MacLab_Pololu_A_Star_32U4/GUI/"
+# file_path = r"./"
 
 class ImageWindow(QWidget):
     def __init__(self):
