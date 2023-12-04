@@ -24,6 +24,7 @@ class ImageWindow(QWidget):
         self.f1y = 240
         self.f2x = 500
         self.f2y = 230
+        self.subject_name = "XXX"
 
         # Set window properties
         self.setGeometry(300, 300, 350, 300)
@@ -38,7 +39,7 @@ class ImageWindow(QWidget):
         self.imageLabel = QLabel(self)
         self.defaultPixmap = QPixmap(file_path + 'habitat.png').scaled(600, 400, Qt.KeepAspectRatio)
         self.alternatePixmap = QPixmap(file_path + 'test1.png').scaled(50, 50, Qt.KeepAspectRatio)
-        self.openPixmap = QPixmap(file_path + 'open.png').scaled(80, 80, Qt.KeepAspectRatio)
+        self.openPixmap = QPixmap(file_path + 'open.png').scaled(50, 50, Qt.KeepAspectRatio)
         self.closePixmap = QPixmap(file_path + 'close.png').scaled(50, 50, Qt.KeepAspectRatio)
         self.testPixmap = QPixmap(file_path + 'test.png').scaled(50, 50, Qt.KeepAspectRatio)
 
@@ -157,6 +158,19 @@ class ImageWindow(QWidget):
 
         layout.addLayout(ExpStaLayout)
 
+        # Other
+        FucLayout = QHBoxLayout()
+
+        HelpButton = QPushButton('Help', self)
+        HelpButton.clicked.connect(self.Help)
+        FucLayout.addWidget(HelpButton)
+
+        ConButton = QPushButton('(Re)Connect', self)
+        ConButton.clicked.connect(self.Connect)
+        FucLayout.addWidget(ConButton)
+
+        layout.addLayout(FucLayout)
+
         # Set the layout
         self.setLayout(layout)
         self.resize(650, 550)
@@ -207,6 +221,11 @@ class ImageWindow(QWidget):
         print("Time:", self.FeederTimeEntry.text())
         print("Rep:", self.FeederRepEntry.text())
         print("Rep:", self.FeederWaitEntry.text())
+
+        if self.TestFeederCombobox.currentText() == "feeder 1":
+            self.overlay(self.f1x,self.f1y,self.testPixmap)
+        if self.TestFeederCombobox.currentText() == "feeder 2":
+            self.overlay(self.f2x,self.f2y,self.testPixmap)
     
     def StartExp(self):
         self.subject_name = f"{self.ExpPreEntry.text()}_{self.ExpSubEntry.text()}_{self.ExpCombobox.currentText()}"
@@ -216,6 +235,12 @@ class ImageWindow(QWidget):
 
     def UploadExp(self):
         pass
+
+    def Help(self):
+        print("ALL COMMANDS")
+    
+    def Connect(self):
+        print("Connecting ...")
 
 app = QApplication([])
 ex = ImageWindow()
